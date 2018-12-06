@@ -29,17 +29,28 @@ router.post('/', validateSession, (req, res) => {
     )}
 });
 
-router.get('/', (req, res) => {
-    Log.findAll()
-    .then(log => res.status(200).json(log))
-    .catch(error => res.status(500).json(error))
-});
 
-router.get('/:id', (req, res) => {
-    Log.findOne({ where: { id: req.params.id }})
-    .then(log => res.status(200).json(log))
-    .catch(err => res.status(500).json(error))
-})
+router.get('/', (req, res) => {
+    console.log('hello');
+    console.log(typeof req.user.id);
+    Log.findAll({
+        where: { owner_properties: `${req.user.id}`}
+    })
+    .then(
+        function getAllSuccess(data) {  // assuming we are successful we will return all the data in a json
+            res.json(data);
+        },
+        function getAllError(err) {
+            res.send(500, err.message);  // if we don't pull it off we get an error message
+        }
+        );
+    })   
+    
+    router.get('/:id', (req, res) => {
+        Log.findOne({ where: { id: req.params.id }})
+        .then(log => res.status(200).json(log))
+        .catch(err => res.status(500).json(error))
+    })
 
 router.put('/:id', (req, res) => {
     if(!req.errors) {
